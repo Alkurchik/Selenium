@@ -1,40 +1,35 @@
+import configparser
 import pytest
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
+from webdriver_manager.microsoft import EdgeChromiumDriverManager
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.firefox.service import Service as GeckoService
+
+
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 
 def pytest_addoption(parser):
-    parser.addoption('--browser_name',
-                     action='store',
-                     default='chrome',
-                     help='Choose browser: chrome or Firefox')
-    parser.addoption('--language',
-                     action='store',
-                     default='en',
-                     help='Choose language: es or fr')
+    parser.addoption("--browser", action="store", default="chrome", help="Type in browser name (e.g. chrome, firefox)")
 
 
-@pytest.fixture(scope="function")
-def browser(request):
-    browser_name = request.config.getoption("browser_name")
-    language = request.config.getoption("language")
-    browser = None
-    if browser_name == "chrome":
-        print("\nstart chrome browser for test..")
-        browser = webdriver.Chrome()
-        options = Options()
-        options.add_experimental_option('prefs', {'intl.accept_languages': language})
-        browser.implicitly_wait(10)
-        browser = webdriver.Chrome(options=options)
-    elif browser_name == "firefox":
-        print("\nstart firefox browser for test..")
-        browser = webdriver.Firefox()
-        browser.implicitly_wait(10)
-        fp = webdriver.FirefoxProfile()
-        fp.set_preference("intl.accept_languages", language)
-        browser = webdriver.Firefox(firefox_profile=fp)
+@pytest.fixture(scope='function')
+def driver(request):
+    if config.get('Google', 'browser') == 'chrome':
+        service = ChromeService(executable_path=ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service)
+    elif config.get('Google', 'browser') == 'firefox':
+        service = GeckoService(executable_path=GeckoDriverManager().install())
+        driver = webdriver.Firefox(service=service)
+    elif config.get('Google', 'browser') == 'edge':
+        driver = webdriver.Edge(EdgeChromiumDriverManager().install())
     else:
-        raise pytest.UsageError("--browser_name should be chrome or firefox")
-    yield browser
-    print("\nquit browser..")
-    browser.quit()
+        raise ValueError(f'Unsupported browser: {config.get("Google", "browser")}')
+
+    driver.implicitly_wait(10)
+    request.addfinalizer(driver.quit)
+
+    return driver

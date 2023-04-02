@@ -1,23 +1,19 @@
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+# base_page.py
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from .locators import BasePageLocators
-from selenium.webdriver.remote.webdriver import WebDriver as RemoteWebDriver
+from selenium.webdriver.common.by import By
 
 
 class BasePage:
+    def __init__(self, driver):
+        self.driver = driver
+        self.wait = WebDriverWait(driver, 10)
 
-    browser: RemoteWebDriver
+    def find_element(self, locator):
+        return self.wait.until(EC.visibility_of_element_located(locator))
 
-    def __init__(self, browser, url, timeout=10):
-        self.browser = browser
-        self.url = url
-        self.browser.implicitly_wait(timeout)
+    def find_elements(self, locator):
+        return self.wait.until(EC.visibility_of_all_elements_located(locator))
 
-    def open(self):
-        return self.browser.get(self.url)
-
-    def go_to_login_page(self):
-        # link = self.browser.find_element(*BasePageLocators.LOGIN_LINK)
-        # link.click()
-        pass
+    def go_to_url(self, url):
+        self.driver.get(url)
