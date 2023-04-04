@@ -10,4 +10,4 @@ import allure
 def test_getting_records():
     r = requests.get(f'{SERVICE_URL}users/2')
     response = Response(r)
-    response.assert_status_code(400).validate(RECORD_SCHEMA)
+    response.assert_status_code(200).validate(RECORD_SCHEMA)

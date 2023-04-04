@@ -17,7 +17,7 @@ class MainPage:
     def search(self, query):
         search_box = self.driver.find_element(*MainPageLocators.SEARCH_BOX)
         self.driver.find_element(*MainPageLocators.COOKIE_MSG).click()
-        search_box.send_keys(query)
+        # search_box.send_keys(query)
         search_button = self.driver.find_element(*MainPageLocators.SEARCH_BUTTON)
         # search_button.click()
 
