@@ -1,1 +1,1 @@
-SERVICE_URL = 'https://reqres.in/api/'
+SERVICE_URL = 'https://dev.dentes.app/'
